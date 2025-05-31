@@ -1,0 +1,429 @@
+﻿@model IEnumerable<ComputerPart>
+
+@{
+    ViewData["Title"] = "Build Computer";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<form id="cyberpunkForm" action="/Computer/StartComputerBuilding" method="post">
+    <input type="hidden" name="type" value="1091500" @* value="1245620" *@ />
+    <button id="buildBtn" type="submit" class="btn btn-primary" style="margin: 5px;">Build PC for Cyberpunk</button>
+    <input type="hidden" name="type" @* value="1091500" *@ value="1245620" />
+    <button id="buildBtn" type="submit" class="btn btn-primary" style="margin: 5px;">Build PC for EldenRing</button>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="partModal" tabindex="-1" aria-labelledby="partModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="partModalLabel">Selected Parts</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="selectedPartNames"></ul>
+            </div>
+            <div class="modal-footer">
+                <a id="savePartBtn" href="#" class="btn btn-primary">Save</a>
+                <a id="deletePartBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Handle form submission
+        $('#cyberpunkForm').on('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+
+                    // Parse the response and update the modal
+                    if (response.startsWith("Success:")) {
+                        const selectedParts = JSON.parse(response.split(":")[1]);
+                        const selectedPartNames = document.getElementById('selectedPartNames');
+                        selectedPartNames.innerHTML = '';
+
+                        selectedParts.forEach(partName => {
+                            const li = document.createElement('li');
+                            li.textContent = partName;
+                            selectedPartNames.appendChild(li);
+                        });
+
+                        // Show the modal
+                        $('#partModal').modal('show');
+                    } else {
+                        // Show an error message if the response is not as expected
+                        alert('Error: Failed to retrieve selected parts.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('An error occurred:', status, error);
+                }
+            });
+        });
+
+        // Handle Save button click
+        $('#savePartBtn').on('click', function () {
+            $.ajax({
+                url: '@Url.Action("Save", "Computer")', // Replace with the actual route to your save action
+                type: 'POST',
+                success: function (saveResponse) {
+                    // Close the modal
+                    $('#partModal').modal('hide');
+                    // Reload the page
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Save error:', status, error);
+                }
+            });
+        });
+
+        // Handle Delete button click
+        $('#deletePartBtn').on('click', function () {
+            $.ajax({
+                url: '@Url.Action("Delete", "Computer")', // Replace with the actual route to your delete action
+                type: 'POST',
+                success: function (deleteResponse) {
+                    // Close the modal
+                    $('#partModal').modal('hide');
+                    // Reload the page
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Delete error:', status, error);
+                }
+            });
+        });
+    });
+</script>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-md-2 d-flex flex-column overflow-auto" style="height: max-content;">
+            <h3>Preferences</h3>
+            <form id="criteriaForm" asp-action="StartSelection" method="post">
+                @{
+                    var types = Model.Select(p => p.Type).Distinct();
+                }
+                @foreach (var type in types)
+                {
+                    <div class="form-check mb-2">
+                        <input class="form-check-input type-checkbox" type="checkbox" value="@type" id="type-@type">
+                        <label class="form-check-label" for="type-@type">
+                            @type
+                        </label>
+                        <div id="criteria-@type" class="criteria-list mt-2" style="display: none;">
+                        </div>
+                    </div>
+                }
+
+                <input type="hidden" name="selectedParts" id="selectedParts">
+                <input type="hidden" name="selectedCriteria" id="selectedCriteria">
+                <button type="submit" class="btn btn-primary mt-3">Start Selection</button>
+            </form>
+        </div>
+
+        <div class="col-md-8 d-flex flex-row flex-wrap overflow-auto">
+            @foreach (var part in Model)
+            {
+                    <div class="card" style="min-width: 220px; max-width:280px; margin-right: 10px; margin-top: 10px; height: 490px;">
+                        <div class="card-body">
+                            <h5 class="card-title">@part.Name</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@part.Manufacturer - @part.Model</h6>
+                            <p class="card-text">
+                                <strong>Type:</strong> @part.Type <br>
+                                <strong>Manufacturer:</strong> @part.Manufacturer <br>
+                                <strong>Model:</strong> @part.Model <br>
+
+                            @switch (part.Type)
+                            {
+                                case "CPU":
+                                    if (part.Cpu != null)
+                                    {
+                                        <strong>Cores:</strong> @part.Cpu.Cores <br>
+                                        <strong>Frequency:</strong> @part.Cpu.Frequency <br>
+                                        <strong>Connection:</strong> @part.Cpu.Connection <br>
+                                        <strong>Memory support:</strong> @part.Cpu.Memory <br>
+                                        <strong>Power:</strong> @part.Cpu.Power <br>
+                                    }
+                                    break;
+                                case "GPU":
+                                        if (part.Gpu != null)
+                                        {
+                                            <strong>Memory:</strong> @part.Gpu.Memory <strong> GB</strong> @part.Gpu.MemoryType @(" ") @part.Gpu.MemoryFrequency <br>
+                                            <strong>Ram:</strong> @part.Gpu.RamQuantity <strong> GB</strong> @part.Gpu.RamType <br>
+                                            <strong>Connection:</strong> @part.Gpu.Connection <br>
+                                            <strong>Power:</strong> @part.Gpu.Power <br>
+                                            <strong>Dimensions:</strong> @part.Gpu.Dimensions <br>
+                                        }
+                                        break;
+                                case "RAM":
+                                        if (part.Ram != null)
+                                        {
+                                            <strong>Type:</strong> @part.Ram.Type <br>
+                                            <strong>Frequency:</strong> @part.Ram.Frequency <br>
+                                            <strong>Voltage:</strong> @part.Ram.Voltage <br>
+                                            <strong>Amount:</strong> @part.Ram.Amount <br>
+                                        }
+                                        break;
+                                case "Motherboard":
+                                        if (part.Motherboard != null)
+                                        {
+                                            <strong>CPU socket:</strong> @part.Motherboard.CpuSocket <br>
+                                            <strong>GPU socket:</strong> @part.Motherboard.GpuSocket <br>
+                                            <strong>RAM connection:</strong> @part.Motherboard.MemoryStandart<br>
+                                            <strong>Max RAM:</strong> @part.Motherboard.MaximumAmountOfMemory <br>
+                                            <strong>Max RAM frequency:</strong> @part.Motherboard.MaximumMemoryFrequency <br>
+                                            <strong>Memory connectors: </strong> @part.Motherboard.MemoryConnection <br>
+                                            <strong>Size standard: </strong> @part.Motherboard.SizeStandart <br>
+                                        }
+                                        break;
+                                case "PSU":
+                                    if (part.Psu != null)
+                                    {
+                                        <strong>Power:</strong> @part.Psu.Power <br>
+                                        <strong>Size standard:</strong> @part.Psu.SizeStandart <br>
+                                    }
+                                    break;
+                                case "Case":
+                                    if (part.Case != null)
+                                    {
+                                        <strong>Size standard:</strong> @part.Case.Standarts <br>
+                                        <strong>Dimensions:</strong> @part.Case.Dimensions <br>
+                                        <strong>Color:</strong> @part.Case.Color <br>
+                                    }
+                                    break;
+                                case "Hard disk":
+                                    if (part.HardDisk != null)
+                                    {
+                                        <strong>Capacity:</strong> @part.HardDisk.Capacity <br>
+                                        <strong>Reading speed:</strong> @part.HardDisk.ReadingSpeed <br>
+                                        <strong>Writing speed:</strong> @part.HardDisk.WritingSpeed <br>
+                                        <strong>Connection:</strong> @part.HardDisk.Connection <br>
+                                    }
+                                    break;
+                            }
+                            <strong>Description:</strong> @part.Description <br>
+                            <strong>Quantity:</strong> @part.Quantity <br>
+                            <strong>Price:</strong> @part.Price <br>
+                        </p>
+                        <a asp-action="AddPart" asp-route-id="@part.Id" class="btn btn-info">Add to build</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-2">
+            <h3>Selected Parts</h3>
+            <div id="selectedPartsContainer">
+                @if (ViewBag.BuildParts != null && ViewBag.BuildParts.Count > 0)
+                {
+                    double sum = 0;
+                    foreach (var part in ViewBag.BuildParts)
+                    {
+                        var castedPart = part as ComputerPart;
+
+                        sum += castedPart.Price;
+                        <div class="card mb-2" data-part-id="@castedPart.Id">
+                            <div class="card-body">
+                                <h5 class="card-title">@part.Name</h5>
+                                <p class="card-text">
+                                    <strong>Type:</strong> @part.Type <br>
+                                    @part.Price €
+                                </p>
+                                <a asp-action="RemovePart" asp-route-id="@part.Id" class="btn btn-danger">Remove</a>
+                            </div>
+                        </div>
+                    }
+                    <div class="card mt-2">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Price</h5>
+                            <p class="card-text">@Math.Round(sum, 2) €</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-2 px-3 py-1">
+                        <button type="button" onclick="checkCompatibility()" class="btn btn-info flex-fill">Check Compatibility</button>
+                        <a asp-action="AddPartsToCart" class="btn btn-info flex-fill ml-4">Add to Cart</a>
+                    </div>
+                    <p id="compatibilityMessage" class="mt-2 text-center"></p>
+                }
+                else
+                {
+                    <p>No parts selected.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="partModal" tabindex="-1" aria-labelledby="partModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="partModalLabel">Selected Parts</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="selectedPartNames"></ul>
+            </div>
+            <div class="modal-footer">
+                <a id="savePartBtn" href="#" class="btn btn-primary">Save</a>
+                <a id="deletePartBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.type-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const criteriaDiv = document.getElementById(`criteria-${this.value}`);
+                if (this.checked) {
+                    fetch(`@Url.Action("OpenPartCriteria", "Computer")?type=${this.value}`, {
+                        method: 'GET',
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            criteriaDiv.style.display = 'block';
+                            criteriaDiv.innerHTML = '';
+
+                            for (const [key, values] of Object.entries(data)) {
+                                const fieldset = document.createElement('fieldset');
+                                const legend = document.createElement('legend');
+                                legend.innerText = key;
+                                fieldset.appendChild(legend);
+
+                                values.forEach(value => {
+                                    const div = document.createElement('div');
+                                    div.classList.add('form-check');
+
+                                    const input = document.createElement('input');
+                                    input.classList.add('form-check-input');
+                                    input.type = 'checkbox';
+                                    input.value = value;
+                                    input.name = `criteria[${this.value}][${key}][]`;
+                                    input.id = `${key}-${value}`;
+
+                                    const label = document.createElement('label');
+                                    label.classList.add('form-check-label');
+                                    label.htmlFor = `${key}-${value}`;
+                                    label.innerText = value;
+
+                                    div.appendChild(input);
+                                    div.appendChild(label);
+                                    fieldset.appendChild(div);
+                                });
+
+                                criteriaDiv.appendChild(fieldset);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                } else {
+                    criteriaDiv.style.display = 'none';
+                    criteriaDiv.innerHTML = '';
+                }
+            });
+        });
+
+        document.getElementById('criteriaForm').addEventListener('submit', function (event) {
+            event.preventDefault(); 
+            const selectedParts = [];
+            document.querySelectorAll('#selectedPartsContainer .card').forEach(card => {
+                const partId = card.getAttribute('data-part-id');
+                if (partId) {
+                    selectedParts.push(parseInt(partId));
+                }
+            });
+
+            document.getElementById('selectedParts').value = JSON.stringify(selectedParts.filter(id => !isNaN(id)));
+
+            const selectedCriteria = {};
+            document.querySelectorAll('.type-checkbox:checked').forEach(checkbox => {
+                const type = checkbox.value;
+                const criteria = {};
+                document.querySelectorAll(`#criteria-${type} fieldset`).forEach(fieldset => {
+                    const key = fieldset.querySelector('legend').innerText;
+                    criteria[key] = [];
+                    fieldset.querySelectorAll('input[type="checkbox"]:checked').forEach(input => {
+                        criteria[key].push(input.value);
+                    });
+                });
+                selectedCriteria[type] = criteria;
+            });
+            document.getElementById('selectedCriteria').value = JSON.stringify(selectedCriteria);
+
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: this.method,
+                body: new URLSearchParams(formData)
+            })
+                .then(response => response.text())
+                .then(data => {
+                    if (data.startsWith("Success:")) {
+                        const selectedParts = JSON.parse(data.split(":")[1]);
+                        const selectedPartNames = document.getElementById('selectedPartNames');
+                        selectedPartNames.innerHTML = '';
+
+                        selectedParts.forEach(partName => {
+                            const li = document.createElement('li');
+                            li.textContent = partName;
+                            selectedPartNames.appendChild(li);
+                        });
+
+                        document.getElementById('savePartBtn').href = '@Url.Action("Save", "Computer")';
+                        document.getElementById('deletePartBtn').href = '@Url.Action("Delete", "Computer")';
+
+                        $('#partModal').modal('show');
+                    } else {
+                        alert(data);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        function checkCompatibility() {
+            $.ajax({
+                url: '@Url.Action("CheckCompatibility", "Compatibility")', 
+                type: 'POST',
+                contentType: 'application/json',
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                success: function (response) {
+                    var formattedMessage = response.message.replace(/\n/g, '<br>'); 
+
+                    document.getElementById('compatibilityMessage').innerHTML = formattedMessage;
+
+                    if (response.message === 'All parts are compatible') {
+                        document.getElementById('compatibilityMessage').style.color = 'green'; 
+                    } else {
+                        document.getElementById('compatibilityMessage').style.color = 'red'; 
+                    }
+                },
+                error: function (xhr, status, error) {
+                    document.getElementById('compatibilityMessage').textContent = 'Error checking compatibility: ' + xhr.responseText;
+                    document.getElementById('compatibilityMessage').style.color = 'red'; 
+                }
+            });
+        }
+
+
+    </script>
+
+}

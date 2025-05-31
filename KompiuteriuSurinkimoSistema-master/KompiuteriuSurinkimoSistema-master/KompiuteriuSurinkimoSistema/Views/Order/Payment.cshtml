@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Payment";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@{
+    var totalAmount = ViewBag.TotalAmount;
+    var success = ViewBag.Success;
+}
+
+@if (success != null)
+{
+    <div>@success</div>
+}
+else{
+<body>
+    <tr class="font-weight-bold">
+        <td colspan="4" class="text-right">Total:</td>
+        <td>@totalAmount €</td>
+    </tr>
+    <form method="post" asp-action="Payment" asp-controller="Payment">
+        <input type="hidden" name="totalAmount" value="@totalAmount" />
+        <input type="submit" value="Pay with PayPal" />
+    </form>
+</body>
+}

@@ -1,0 +1,73 @@
+﻿@model ComputerBuildSystem.Models.ComputerPart
+
+@{
+    ViewData["Title"] = "Part Information";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">@Model.Name</h3>
+        <h4 class="card-subtitle mb-2 text-muted">@Model.Type</h4>
+        <p class="card-text">Manufacturer: @Model.Manufacturer</p>
+        <p>Model: @Model.Model</p>
+        <p>Price: @Model.Price.ToString("C2")</p>
+        <p>Quantity: @Model.Quantity</p>
+        <p>Description: @Model.Description</p>
+        @if (Model.Benchmark != null)
+        {
+                <p>Benchmark: @Model.Benchmark</p>
+        }
+
+        @switch (Model.Type)
+        {
+            case "CPU":
+                        <p>Memory: @Model.Cpu.Memory</p>
+                        <p>Connection: @Model.Cpu.Connection</p>
+                        <p>Cores: @Model.Cpu.Cores</p>
+                        <p>Frequency: @Model.Cpu.Frequency</p>
+                        <p>Power: @Model.Cpu.Power</p>
+                break;
+            case "GPU":
+                        <p>Memory: @Model.Gpu.Memory</p>
+                        <p>Memory Type: @Model.Gpu.MemoryType</p>
+                        <p>Memory Frequency: @Model.Gpu.MemoryFrequency</p>
+                        <p>Connection: @Model.Gpu.Connection</p>
+                        <p>RAM Quantity: @Model.Gpu.RamQuantity</p>
+                        <p>RAM Type: @Model.Gpu.RamType</p>
+                        <p>Power: @Model.Gpu.Power</p>
+                break;
+            case "RAM":
+                        <p>Type: @Model.Ram.Type</p>
+                        <p>Frequency: @Model.Ram.Frequency</p>
+                        <p>Voltage: @Model.Ram.Voltage</p>
+                break;
+            case "Motherboard":
+                        <p>Maximum Memory Frequency: @Model.Motherboard.MaximumMemoryFrequency</p>
+                        <p>Memory Standard: @Model.Motherboard.MemoryStandart</p>
+                        <p>Maximum Memory Amount: @Model.Motherboard.MaximumAmountOfMemory</p>
+                        <p>CPU Socket: @Model.Motherboard.CpuSocket</p>
+                        <p>GPU Socket: @Model.Motherboard.GpuSocket</p>
+                        <p>Memory Connection: @Model.Motherboard.MemoryConnection</p>
+                break;
+            case "PSU":
+                        <p>Power: @Model.Psu.Power</p>
+                        <p>Size Standard: @Model.Psu.SizeStandart</p>
+                break;
+            case "Case":
+                        <p>Standards: @Model.Case.Standarts</p>
+                        <p>Dimensions: @Model.Case.Dimensions</p>
+                        <p>Color: @Model.Case.Color</p>
+                break;
+            case "Hard disk":
+                        <p>Type: @Model.HardDisk.Type</p>
+                        <p>Capacity: @Model.HardDisk.Capacity</p>
+                        <p>Reading Speed: @Model.HardDisk.ReadingSpeed</p>
+                        <p>Writing Speed: @Model.HardDisk.WritingSpeed</p>
+                        <p>Connection: @Model.HardDisk.Connection</p>
+                break;
+        }
+    </div>
+</div>

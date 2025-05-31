@@ -1,0 +1,243 @@
+﻿@{
+    ViewData["Title"] = "Add New Part";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (ViewData.ModelState.ContainsKey("ErrorMessage"))
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState["ErrorMessage"].Errors)
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+
+<form asp-action="AddPart" method="post" id="partForm">
+    <div class="form-group">
+        <label for="type">Type of Part:</label>
+        <select id="partType" name="Type" class="form-control" onchange="updateFormFields()">
+            <option value="">Select Type</option>
+            <option value="Case">Case</option>
+            <option value="PSU">PSU</option>
+            <option value="Hard disk">Hard Disk</option>
+            <option value="GPU">GPU</option>
+            <option value="CPU">CPU</option>
+            <option value="RAM">RAM</option>
+            <option value="Motherboard">Motherboard</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <input type="text" name="Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Manufacturer">Manufacturer</label>
+        <input type="text" name="Manufacturer" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Model">Model</label>
+        <input type="text" name="Model" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Price">Price</label>
+        <input type="number" name="Price" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Quantity">Quantity</label>
+        <input type="number" name="Quantity" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Description">Description</label>
+        <textarea name="Description" class="form-control" ></textarea>
+    </div>
+
+    <div id="dynamicFields"></div>
+
+    <button type="submit" class="btn btn-success" style="margin: 5px;">Add Part</button>
+</form>
+
+@section Scripts {
+    <script>
+        function updateFormFields() {
+            const type = document.getElementById("partType").value;
+            const fieldsContainer = document.getElementById("dynamicFields");
+
+            fieldsContainer.innerHTML = '';
+
+            if (type === "CPU") {
+                        fieldsContainer.innerHTML += 
+                `<div class="form-group">
+                    <label for="Memory">Memory:</label>
+                    <input type="text" name="Memory" class="form-control" />
+                </div>
+                 <div class="form-group">
+                    <label for="Connection">Connection:</label>
+                    <input type="text" name="Connection" class="form-control" />
+                </div>
+                 <div class="form-group">
+                    <label for="Cores">Cores:</label>
+                    <input type="number" name="Cores" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="Frequency">Frequency:</label>
+                    <input type="number" name="Frequency" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Power">Power:</label>
+                    <input type="number" name="Power" class="form-control" />
+                </div>`
+                ;
+            }
+
+            if (type === "GPU") {
+                fieldsContainer.innerHTML += 
+                    `<div class="form-group">
+                        <label for="Memory">Memory:</label>
+                        <input type="number" name="Memory" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="MemoryType">Memory type:</label>
+                        <input type="text" name="MemoryType" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Frequency">Memory frequency:</label>
+                        <input type="number" name="Frequency" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Connection">Connection:</label>
+                        <input type="text" name="Connection" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="RamQuantity">RAM Quantity:</label>
+                        <input type="number" name="RamQuantity" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="RamType">RAM Type:</label>
+                        <input type="text" name="RamType" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Power">Power:</label>
+                        <input type="number" name="Power" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Dimensions">Dimensions:</label>
+                        <input type="text" name="Dimensions" class="form-control" />
+                    </div>
+                    `;
+            }
+
+            if (type === "RAM") {
+                fieldsContainer.innerHTML += 
+                    `<div class="form-group">
+                        <label for="Type">Type:</label>
+                        <input type="text" name="Type" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Frequency">Frequency:</label>
+                        <input type="number" name="Frequency" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Voltage">Voltage:</label>
+                        <input type="number" name="Voltage" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Amount">Amount:</label>
+                        <input type="number" name="Amount" class="form-control" />
+                    </div>
+                    `;
+            }
+
+            if (type === "Case") {
+                fieldsContainer.innerHTML += 
+                    `<div class="form-group">
+                        <label for="Standard">Size standard:</label>
+                        <input type="text" name="Standard" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Dimensions">Dimensions:</label>
+                        <input type="text" name="Dimensions" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Color">Color:</label>
+                        <input type="text" name="Color" class="form-control" />
+                    </div>
+                    `;
+            }
+
+            if (type === "PSU") {
+                fieldsContainer.innerHTML += 
+                    `<div class="form-group">
+                        <label for="Power">Power:</label>
+                        <input type="number" name="Power" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Size">Size standard:</label>
+                        <input type="text" name="Size" class="form-control" />
+                    </div>`;
+            }
+
+            if (type === "Motherboard") {
+                fieldsContainer.innerHTML += 
+                    `<div class="form-group">
+                        <label for="MaxFrequency">Maximum memory frequency:</label>
+                        <input type="number" name="MaxFrequency" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="RamStandard">Ram standard:</label>
+                                <input type="text" name="RamStandard" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="MaxMemory">Maximum memory amount:</label>
+                        <input type="number" name="MaxMemory" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="CpuSocket">CPU socket:</label>
+                        <input type="text" name="CpuSocket" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="GpuSocket">GPU socket:</label>
+                        <input type="text" name="GpuSocket" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="MemoryConnection">Memory connection:</label>
+                         <input type="text" name="MemoryConnection" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="SizeStandard">Size standard:</label>
+                         <input type="text" name="SizeStandard" class="form-control" />
+                    </div>
+                    `;
+            }
+
+            if (type === "Hard disk") {
+                fieldsContainer.innerHTML += 
+                    `<div class="form-group">
+                        <label for="DiskType">Type:</label>
+                        <input type="text" name="DiskType" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Capacity">Capacity:</label>
+                        <input type="text" name="Capacity" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="ReadingSpeed">Reading speed:</label>
+                        <input type="number" name="ReadingSpeed" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="WritingSpeed">Writing speed:</label>
+                        <input type="text" name="WritingSpeed" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Connection">Connection:</label>
+                        <input type="text" name="Connection" class="form-control" />
+                    </div>
+                    `;
+            }
+        }
+    </script>
+}

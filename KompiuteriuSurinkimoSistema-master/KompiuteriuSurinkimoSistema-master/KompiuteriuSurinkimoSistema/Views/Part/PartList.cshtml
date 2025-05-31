@@ -1,0 +1,109 @@
+﻿@model IEnumerable<ComputerPart>
+
+@{
+    ViewData["Title"] = "Part List";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div style="text-align:right; margin-bottom: 10px;">
+    <a asp-action="OpenAddPart" class="btn btn-success">Add part</a>
+</div>
+
+<form asp-action="Filter" method="get">
+    <div class="form-group">
+        <label for="type">Filter by Type:</label>
+        <select name="type" class="form-control">
+            <option value="">All</option>
+            <option value="Case">Cases</option>
+            <option value="PSU">PSUs</option>
+            <option value="Hard disk">Hard disks</option>
+            <option value="GPU">GPUs</option>
+            <option value="CPU">CPUs</option>
+            <option value="RAM">RAM</option>
+            <option value="Motherboard">Motherboards</option>
+        </select>
+        <input type="hidden" name="parts" value=@Model>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin: 5px;">Filter</button>
+</form>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-9 d-flex flex-row flex-wrap overflow-auto">
+            @foreach (var part in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@part.Name</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@part.Manufacturer - @part.Model</h6>
+                            <p class="card-text">
+                                <strong>Type:</strong> @part.Type <br>
+                                <strong>Price:</strong> @part.Price.ToString("C2") <br>
+                                <strong>Quantity:</strong> @part.Quantity <br>
+                                <strong>Description:</strong> @part.Description
+                            </p>
+                            <a asp-action="OpenPartInfo" asp-route-id="@part.Id" class="btn btn-info">Part info</a>
+                            <a asp-action="OpenEditPart" asp-route-id="@part.Id" class="btn btn-primary">Edit</a>
+                            <button onclick="DeletePart('@part.Id', '@part.Name');" class="btn btn-danger">Delete Part</button>
+                            @if (part.Type == "GPU")
+                            {
+                                <a asp-action="GPUCompare" asp-route-id="@part.Id" class="btn btn-primary">Compare</a>
+                            }
+                            <a asp-action="AddToCart" asp-route-id="@part.Id" class="btn btn-info flex-fill ml-4">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+
+        <div class="col-md-3">
+            <h3>GPU comparison</h3>
+            @if (ViewBag.CompareGPU != null && ViewBag.CompareGPU.Count > 0)
+            {
+                double sum = 0;
+                foreach (var part in ViewBag.CompareGPU)
+                {
+                    sum += (part as ComputerPart).Price;
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">@part.Name</h5>
+                            <p class="card-text">
+                                <strong>Type:</strong> @part.Type <br>
+                                @part.Price €
+                            </p>
+                        </div>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between mt-2 px-3 py-1">
+                    <a asp-action="OpenGPU" class="btn btn-primary">Compare GPU</a>
+                </div>
+            }
+            else
+            {
+                <p>No GPUs selected.</p>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function DeletePart(id) {
+        fetch('@Url.Action("DeletePart", "Part")' + '?id=' + id)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.confirm) {
+                    alert(data.message);
+                } else {
+                    if (confirm(data.message)) {
+                        window.location.href = '@Url.Action("Delete", "Part")' + '?id=' + id;
+                    }
+                }
+            });
+    }
+</script>

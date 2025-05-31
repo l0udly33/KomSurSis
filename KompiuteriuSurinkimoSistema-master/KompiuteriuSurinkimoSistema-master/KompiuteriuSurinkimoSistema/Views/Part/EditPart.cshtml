@@ -1,0 +1,209 @@
+﻿@model ComputerBuildSystem.Models.ComputerPart
+
+@{
+    ViewData["Title"] = "Edit Part";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (ViewData.ModelState.ContainsKey("ErrorMessage"))
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState["ErrorMessage"].Errors)
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<form asp-action="EditPart" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Type" />
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Manufacturer" class="control-label">Manufacturer</label>
+        <input asp-for="Manufacturer" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Model" class="control-label">Model</label>
+        <input asp-for="Model" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Price" class="control-label">Price</label>
+        <input asp-for="Price" class="form-control" type="number" step="0.01" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Quantity" class="control-label">Quantity</label>
+        <input asp-for="Quantity" class="form-control" type="number" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    @switch (Model.Type)
+    {
+        case "CPU":
+            <input type="hidden" asp-for="Cpu.Id" />
+            <div class="form-group">
+                <label for="Cpu.Memory">Memory</label>
+                <input type="text" name="Cpu.Memory" class="form-control" value="@Model.Cpu.Memory" />
+            </div>
+            <div class="form-group">
+                <label for="Cpu.Connection">Connection</label>
+                <input type="text" name="Cpu.Connection" class="form-control" value="@Model.Cpu.Connection" />
+            </div>
+            <div class="form-group">
+                <label for="Cpu.Cores">Cores</label>
+                <input type="number" name="Cpu.Cores" class="form-control" value="@Model.Cpu.Cores" />
+            </div>
+            <div class="form-group">
+                <label for="Cpu.Frequency">Frequency</label>
+                <input type="number" name="Cpu.Frequency" class="form-control" value="@Model.Cpu.Frequency" />
+            </div>
+            <div class="form-group">
+                <label for="Cpu.Power">Power</label>
+                <input type="number" name="Cpu.Power" class="form-control" value="@Model.Cpu.Power" />
+            </div>
+            break;
+        case "GPU":
+            <input type="hidden" asp-for="Gpu.Id" />
+            <div class="form-group">
+                <label for="Gpu.Memory">Memory</label>
+                <input type="number" name="Gpu.Memory" class="form-control" value="@Model.Gpu.Memory" />
+            </div>
+            <div class="form-group">
+                <label for="Gpu.MemoryType">Memory Type</label>
+                <input type="text" name="Gpu.MemoryType" class="form-control" value="@Model.Gpu.MemoryType" />
+            </div>
+            <div class="form-group">
+                <label for="Gpu.MemoryFrequency">Memory Frequency</label>
+                <input type="number" name="Gpu.MemoryFrequency" class="form-control" value="@Model.Gpu.MemoryFrequency" />
+            </div>
+            <div class="form-group">
+                <label for="Gpu.Connection">Connection</label>
+                <input type="text" name="Gpu.Connection" class="form-control" value="@Model.Gpu.Connection" />
+            </div>
+            <div class="form-group">
+                <label for="Gpu.RamQuantity">RAM Quantity</label>
+                <input type="number" name="Gpu.RamQuantity" class="form-control" value="@Model.Gpu.RamQuantity" />
+            </div>
+            <div class="form-group">
+                <label for="Gpu.RamType">RAM Type</label>
+                <input type="text" name="Gpu.RamType" class="form-control" value="@Model.Gpu.RamType" />
+            </div>
+            <div class="form-group">
+                <label for="Gpu.Power">Power</label>
+                <input type="number" name="Gpu.Power" class="form-control" value="@Model.Gpu.Power" />
+            </div>
+            <div class="form-group">
+                <label for="Gpu.RamType">RAM Type</label>
+                <input type="text" name="Gpu.Dimensions" class="form-control" value="@Model.Gpu.Dimensions" />
+            </div>
+            break;
+        case "RAM":
+            <input type="hidden" asp-for="Ram.Id" />
+            <div class="form-group">
+                <label for="Ram.Type">Type</label>
+                <input type="text" name="Ram.Type" class="form-control" value="@Model.Ram.Type" />
+            </div>
+            <div class="form-group">
+                <label for="Ram.Frequency">Frequency</label>
+                <input type="number" name="Ram.Frequency" class="form-control" value="@Model.Ram.Frequency" />
+            </div>
+            <div class="form-group">
+                <label for="Ram.Voltage">Voltage</label>
+                <input type="number" name="Ram.Voltage" class="form-control" value="@Model.Ram.Voltage" />
+            </div>
+            <div class="form-group">
+                <label for="Ram.Amount">Voltage</label>
+                <input type="number" name="Ram.Amount" class="form-control" value="@Model.Ram.Amount" />
+            </div>
+            break;
+        case "Motherboard":
+            <input type="hidden" asp-for="Motherboard.Id" />
+            <div class="form-group">
+                <label for="Motherboard.MaximumMemoryFrequency">Maximum Memory Frequency</label>
+                <input type="number" name="Motherboard.MaximumMemoryFrequency" class="form-control" value="@Model.Motherboard.MaximumMemoryFrequency" />
+            </div>
+            <div class="form-group">
+                <label for="Motherboard.MemoryStandart">Memory Standard</label>
+                <input type="text" name="Motherboard.MemoryStandart" class="form-control" value="@Model.Motherboard.MemoryStandart" />
+            </div>
+            <div class="form-group">
+                <label for="Motherboard.MaximumAmountOfMemory">Maximum Amount of Memory</label>
+                <input type="number" name="Motherboard.MaximumAmountOfMemory" class="form-control" value="@Model.Motherboard.MaximumAmountOfMemory" />
+            </div>
+            <div class="form-group">
+                <label for="Motherboard.CpuSocket">CPU Socket</label>
+                <input type="text" name="Motherboard.CpuSocket" class="form-control" value="@Model.Motherboard.CpuSocket" />
+            </div>
+            <div class="form-group">
+                <label for="Motherboard.GpuSocket">GPU Socket</label>
+                <input type="text" name="Motherboard.GpuSocket" class="form-control" value="@Model.Motherboard.GpuSocket" />
+            </div>
+            <div class="form-group">
+                <label for="Motherboard.MemoryConnection">Memory Connection</label>
+                <input type="text" name="Motherboard.MemoryConnection" class="form-control" value="@Model.Motherboard.MemoryConnection" />
+            </div>
+            <div class="form-group">
+                <label for="Motherboard.SizeStandart">Size standard</label>
+                <input type="text" name="Motherboard.SizeStandart" class="form-control" value="@Model.Motherboard.SizeStandart" />
+            </div>
+            break;
+        case "PSU":
+            <input type="hidden" asp-for="Psu.Id" />
+            <div class="form-group">
+                <label for="Psu.Power">Power</label>
+                <input type="number" name="Psu.Power" class="form-control" value="@Model.Psu.Power" />
+            </div>
+            <div class="form-group">
+                <label for="Psu.SizeStandart">Size Standard</label>
+                <input type="text" name="Psu.SizeStandart" class="form-control" value="@Model.Psu.SizeStandart" />
+            </div>
+            break;
+        case "Case":
+            <input type="hidden" asp-for="Case.Id" />
+            <div class="form-group">
+                <label for="Case.Standarts">Standards</label>
+                <input type="text" name="Case.Standarts" class="form-control" value="@Model.Case.Standarts" />
+            </div>
+            <div class="form-group">
+                <label for="Case.Dimensions">Dimensions</label>
+                <input type="text" name="Case.Dimensions" class="form-control" value="@Model.Case.Dimensions" />
+            </div>
+            <div class="form-group">
+                <label for="Case.Color">Color</label>
+                <input type="text" name="Case.Color" class="form-control" value="@Model.Case.Color" />
+            </div>
+            break;
+        case "Hard disk":
+            <input type="hidden" asp-for="HardDisk.Id" />
+            <div class="form-group">
+                <label for="HardDisk.Type">Type</label>
+                <input type="text" name="HardDisk.Type" class="form-control" value="@Model.HardDisk.Type" />
+            </div>
+            <div class="form-group">
+                <label for="HardDisk.Capacity">Capacity</label>
+                <input type="text" name="HardDisk.Capacity" class="form-control" value="@Model.HardDisk.Capacity" />
+            </div>
+            <div class="form-group">
+                <label for="HardDisk.ReadingSpeed">Reading Speed</label>
+                <input type="number" name="HardDisk.ReadingSpeed" class="form-control" value="@Model.HardDisk.ReadingSpeed" />
+            </div>
+            <div class="form-group">
+                <label for="HardDisk.WritingSpeed">Writing Speed</label>
+                <input type="text" name="HardDisk.WritingSpeed" class="form-control" value="@Model.HardDisk.WritingSpeed" />
+            </div>
+            <div class="form-group">
+                <label for="HardDisk.Connectio">Connection</label>
+                <input type="text" name="HardDisk.Connectio" class="form-control" value="@Model.HardDisk.Connection" />
+            </div>
+            break;
+    }
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>

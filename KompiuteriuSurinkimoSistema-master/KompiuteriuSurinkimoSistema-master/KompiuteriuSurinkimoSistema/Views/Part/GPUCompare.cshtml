@@ -1,0 +1,305 @@
+﻿@model IEnumerable<ComputerPart>
+
+@{
+    ViewData["Title"] = "GPU Compare Settings";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@{
+    var criteria = ViewBag.Criteria as List<string>;
+    var gpus = ViewBag.CompareGPU as List<ComputerPart>;
+    var missing = ViewBag.Error as List<ComputerPart>;
+    var outputData = ViewBag.OutputData as Dictionary<int, List<ComputerPart>>;
+    decimal? priceLimit = null;
+    decimal? benchmarkLimit = null;
+
+    if (criteria != null)
+    {
+        foreach (var criterion in criteria)
+        {
+            var parts = criterion.Split(':');
+            if (parts.Length == 2)
+            {
+                if (parts[0] == "priceLimit")
+                {
+                    decimal parsedPriceLimit;
+                    if (decimal.TryParse(parts[1], out parsedPriceLimit))
+                    {
+                        priceLimit = parsedPriceLimit;
+                    }
+                }
+                else if (parts[0] == "benchmarkLimit")
+                {
+                    decimal parsedBenchmarkLimit;
+                    if (decimal.TryParse(parts[1], out parsedBenchmarkLimit))
+                    {
+                        benchmarkLimit = parsedBenchmarkLimit;
+                    }
+                }
+            }
+        }
+    }
+}
+
+<div class="col-md-12">
+    <p>Selected GPUs for comparison</p>
+    <div class="d-flex flex-wrap">
+        @if (gpus != null && gpus.Count > 0)
+        {
+            double sum = 0;
+            foreach (var part in gpus)
+            {
+                sum += (part as ComputerPart).Price;
+                <div class="card mb-2 mr-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@part.Name</h5>
+                        <p class="card-text">
+                            <strong>Type:</strong> @part.Type <br>
+                            @part.Price €
+                        </p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No GPUs selected.</p>
+        }
+    </div>
+</div>
+@if (outputData != null){
+    if (outputData.ContainsKey(1))
+    {
+        bool best = true;
+        <div class="col-md-12">
+            <p>Benchmark scores comparison result:</p>
+            <div class="d-flex flex-wrap">
+                @foreach (var part in outputData[1])
+                {
+                    if (best)
+                    {
+                        <div class="card mb-2 mr-2" style="background-color: lightgreen;">
+                            <div class="card-body">
+                                <h5 class="card-title">@part.Name</h5>
+                                <p class="card-text">
+                                    <strong>Type:</strong> @part.Type <br>
+                                    @part.Price €
+                                </p>
+                                <p class="card-text">
+                                    <strong>Benchmark per euro score:</strong> @part.Benchmark <br>
+                                </p>
+                            </div>
+                        </div>
+                        best = false;
+                    }
+                    else
+                    {
+                        <div class="card mb-2 mr-2">
+                            <div class="card-body">
+                                <h5 class="card-title">@part.Name</h5>
+                                <p class="card-text">
+                                    <strong>Type:</strong> @part.Type <br>
+                                    @part.Price €
+                                </p>
+                                <p class="card-text">
+                                    <strong>Benchmark per euro score:</strong> @part.Benchmark <br>
+                                </p>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+    if (outputData.ContainsKey(2))
+    {
+        bool best = true;
+        <div class="col-md-12">
+            <p>Benchmark per euro comparison result:</p>
+            <div class="d-flex flex-wrap">
+                @foreach (var part in outputData[2])
+                {
+                    if (best)
+                    {
+                        <div class="card mb-2 mr-2" style="background-color: lightgreen;">
+                            <div class="card-body">
+                                <h5 class="card-title">@part.Name</h5>
+                                <p class="card-text">
+                                    <strong>Type:</strong> @part.Type <br>
+                                    @part.Price €
+                                </p>
+                                <p class="card-text">
+                                    <strong>Benchmark per euro score:</strong> @part.Benchmark <br>
+                                </p>
+                            </div>
+                        </div>
+                        best = false;
+                    }
+                    else
+                    {
+                        <div class="card mb-2 mr-2">
+                            <div class="card-body">
+                                <h5 class="card-title">@part.Name</h5>
+                                <p class="card-text">
+                                    <strong>Type:</strong> @part.Type <br>
+                                    @part.Price €
+                                </p>
+                                <p class="card-text">
+                                    <strong>Benchmark per euro score:</strong> @part.Benchmark <br>
+                                </p>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+    if (outputData.ContainsKey(3))
+    {
+        if (missing != null)
+        {
+            <div class="row">
+                <p>Intermediate option by given price and benchmark limits:</p>
+                <div id="errorReport" class="mt-2">Some benchmark data is missing 🤕 Missing data for the following GPUs: </div>
+                <ul>
+                    @foreach (var part in missing)
+                    {
+                        <li style="margin-bottom: 5px;">@part.Name</li>
+                    }
+                </ul>
+            </div>
+
+        }
+        else if (outputData[3][0] != null)
+        {
+            <div class="col-md-12">
+                <p>Intermediate option by given price and benchmark limits:</p>
+                <div class="d-flex flex-wrap">
+                    @foreach (var part in outputData[3])
+                    {
+
+                        <div class="card mb-2 mr-2" style="background-color: lightyellow;">
+                            <div class="card-body">
+                                <h5 class="card-title">@part.Name</h5>
+                                <p class="card-text">
+                                    <strong>Type:</strong> @part.Type <br>
+                                    @part.Price €
+                                </p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-12">
+                <p>Intermediate option by given price and benchmark limits:</p>
+                <p>Could not find any options 😭 Try again with bigger limits or other GPUs </p>
+            </div>
+        }
+
+    }
+}
+else if(missing == null){
+    <p>Select comparison criteria</p>
+    <div class="row mb-3">
+        <div class="col-md-4">
+            @if (criteria != null && criteria.Contains("benchmarkPerEuro"))
+            {
+                <form asp-action="BenchmarkPerEuroGPU" method="post">
+                    <input type="hidden" name="source" value="BenchmarkPerEuroGPU" />
+                    <button type="submit" class="btn btn-info btn-block">Benchmark per euro</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="BenchmarkPerEuroGPU" method="post">
+                    <input type="hidden" name="source" value="BenchmarkPerEuroGPU" />
+                    <button type="submit" class="btn btn-outline-info btn-block">Benchmark per euro</button>
+                </form>
+            }
+        </div>
+        <div class="col-md-4">
+            @if (benchmarkLimit == null)
+            {
+                <button id="findIntermediateOption" class="btn btn-outline-primary btn-block">Find intermediate option</button>
+                <div id="priceLimits" class="mt-2" style="display: none;">
+                    <form asp-action="PriceLimitGPU" method="post">
+                        <input type="hidden" name="source" value="PriceLimitGPU" />
+                        <p>Select price limit:</p>
+                        <input type="number" class="form-control mb-2" placeholder="Limit" name="priceLimit" id="priceLimit" value="@priceLimit">
+                        <button type="submit" id="confirmPriceLimit" class="btn btn-primary">Confirm</button>
+                    </form>
+                </div>
+                @if (priceLimit != null)
+                {
+                    <div id="selectedPriceLimits" class="mt-2">Selected price limit: '  @priceLimit   '</div>
+                    <div id="benchmarkLimits" class="mt-2";">
+                    <p>Select benchmark limit:</p>
+                        <form asp-action="BenchmarkLimitGPU" method="post">
+                            <input type="hidden" name="source" value="BenchmarkLimitGPU" />
+                            <input type="number" class="form-control mb-2" placeholder="From" name="benchmarkLimit" id="benchmarkLimit" value="@benchmarkLimit">
+                            <button type="submit" id="confirmBenchmarkLimit" class="btn btn-primary">Confirm</button>
+                        </form>
+                    </div>
+                }
+            }
+            else
+            {
+                <button id="findIntermediateOption" class="btn btn-primary btn-block">Find intermediate option</button>
+                <div id="selectedPriceLimits" class="mt-2">Selected price limit: '  @priceLimit  '</div>
+                <div id="selectedBenchmarkLimits" class="mt-2">Selected benchmark limit: '  @benchmarkLimit  '</div>
+            }
+        </div>
+        <div class="col-md-4">
+            @if (criteria != null && criteria.Contains("benchmarkOverall"))
+            {
+                <form asp-action="BenchmarkOverallGPU" method="post">
+                    <input type="hidden" name="source" value="BenchmarkOverallGPU" />
+                    <button type="submit" class="btn btn-success btn-block">Benchmark Overall</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="BenchmarkOverallGPU" method="post">
+                    <input type="hidden" name="source" value="BenchmarkOverallGPU" />
+                    <button type="submit" class="btn btn-outline-success btn-block">Benchmark Overall</button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <a asp-action="GPUResults" class="btn btn-primary btn-block">Show results</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div id="errorReport" class="mt-2">Some benchmark data is missing 🤕 Missing data for the following GPUs: </div>
+        <ul>
+            @foreach (var part in missing)
+            {
+                <li style="margin-bottom: 5px;">@part.Name</li>
+            }
+        </ul>
+    </div>
+}
+@section scripts {
+    <script>
+        $('#findIntermediateOption').click(function () {
+            $('#priceLimits').toggle();
+        });
+
+        $('#confirmPriceLimit').click(function () {
+            $('#priceLimits').hide();
+            $('#confirmPriceLimit').hide();
+            $('#benchmarkLimits').show();
+            $('#confirmBenchmarkLimit').show();
+        });
+    </script>
+}
